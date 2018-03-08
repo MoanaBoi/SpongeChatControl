@@ -1,14 +1,8 @@
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.game.state.GameAboutToStartServerEvent;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.text.Text;
-
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
 
 @Plugin(id = "spongechatcontrol",
@@ -50,7 +44,8 @@ public class CheckBadWords {
                     event.setMessage(newMsg);
                 }
             }
-
         }
+        SpamControl spam = new SpamControl();
+        spam.playerMessagePreventSpam(event);
     }
 }
