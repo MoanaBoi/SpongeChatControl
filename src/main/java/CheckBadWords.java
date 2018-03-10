@@ -14,6 +14,7 @@ public class CheckBadWords {
 
     private static String badWords[] = {"fuck", "shit", "merde", "putain", "enculé",
             "encule", "pd", "batard", "bâtard", "fuk", "bastard", "bâstard"};
+    private static SpamControl spam = new SpamControl();
 
     /*@Listener
     public void parseBadWordsWhenServerStart(GameAboutToStartServerEvent event) {
@@ -45,7 +46,6 @@ public class CheckBadWords {
                 }
             }
         }
-        SpamControl spam = new SpamControl();
         spam.playerMessagePreventSpam(event);
     }
 }

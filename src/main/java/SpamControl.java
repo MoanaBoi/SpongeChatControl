@@ -1,11 +1,8 @@
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class SpamControl {
@@ -13,38 +10,22 @@ public class SpamControl {
     private static final Map<PlayerChat, List<String>> spam = new HashMap<>();
 
     private void applySlowMode(PlayerChat player, int time, String reason) {
-        Text msg = Text.builder("Chat timeout pour" + time + "secondes. Raison: " + reason)
-                .color(TextColors.RED).build();
+        Text msg = Text.builder("Chat timeout pour " + time + " secondes. Raison: " + reason)
+                .color(TextColors.YELLOW).build();
         player.getPlayer().sendMessage(msg);
-        long epoch = 0;
-        try {
-            String str = new Date().toString();
-            SimpleDateFormat df = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
-            Date date = df.parse(str);
-            epoch = date.getTime();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+        long epoch = System.currentTimeMillis();
         player.setEpoch(epoch);
         player.setTime(time);
         player.setTimedout(true);
-        System.out.println("Timedout player");
         player.getPlayer().setMessageChannel(player.timeOutChannel);
     }
 
     private void undoSlowMode(PlayerChat player) {
-        long epoch = 0;
-        try {
-            String str = new Date().toString();
-            SimpleDateFormat df = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
-            Date date = df.parse(str);
-            epoch = date.getTime();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        if (epoch - player.getEpoch() <= player.getTime()) {
-            System.out.println("Untimedout player");
+        long epoch = System.currentTimeMillis();
+        if ((epoch - player.getEpoch()) / 1000 >= player.getTime()) {
             player.getPlayer().setMessageChannel(player.originalChannel);
+        } else {
+            return;
         }
         player.setTimedout(false);
         player.setTime(0);
@@ -60,7 +41,6 @@ public class SpamControl {
     }
 
     public void playerMessagePreventSpam(MessageChannelEvent.Chat event) {
-        System.out.println("Is it working");
         Optional<Player> optionalPlayer = event.getCause().first(Player.class);
         if (optionalPlayer.isPresent()) {
             String msg = event.getRawMessage().toPlainSingle();
@@ -76,16 +56,15 @@ public class SpamControl {
                         String[] lastThreeMsg = {lastMsg.getValue().get(size - 1), lastMsg.getValue().get(size - 2), lastMsg.getValue().get(size - 3)};
                         if (lastThreeMsg[0].equals(lastThreeMsg[1]) && lastThreeMsg[0].equals(lastThreeMsg[2])) {
                             applySlowMode(lastMsg.getKey(), 5, "Le spam c'est mal !");
+                            event.setCancelled(true);
                         }
                     }
                 }
-                System.out.println("Found player and took action on him");
             } else {
                 List<String> firstSee = new ArrayList<String>();
                 firstSee.add(msg);
                 PlayerChat player = new PlayerChat(optionalPlayer.get());
                 spam.put(player, firstSee);
-                System.out.println("added player to list");
             }
         }
     }
