@@ -1,6 +1,9 @@
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.state.GameAboutToStartServerEvent;
 import org.spongepowered.api.event.message.MessageChannelEvent;
+import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.text.Text;
 import java.util.Optional;
@@ -15,23 +18,7 @@ public class CheckBadWords {
     private static String badWords[] = {"fuck", "shit", "merde", "putain", "enculé",
             "encule", "pd", "batard", "bâtard", "fuk", "bastard", "bâstard"};
     private static SpamControl spam = new SpamControl();
-
-    /*@Listener
-    public void parseBadWordsWhenServerStart(GameAboutToStartServerEvent event) {
-        String file = System.getProperty("user.dir");
-        file += '\\' + "bad-words.txt";
-        BufferedReader br = null;
-        try {
-            br = new BufferedReader(new FileReader(file));
-            String line;
-            while ((line = br.readLine()) != null) {
-                System.out.println(line);
-                badWords.add(line);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }*/
+    private static CmdSlowMode slowMode = new CmdSlowMode();
 
     @Listener
     public void playerMessage(MessageChannelEvent.Chat event) {
@@ -47,5 +34,23 @@ public class CheckBadWords {
             }
         }
         spam.playerMessagePreventSpam(event);
+        slowMode.checkSlowModeBeforeMessage(event);
     }
+
+    @Listener
+    public void addPlayerToList(ClientConnectionEvent.Join event) {
+        slowMode.addPlayerToList(event);
+    }
+
+    @Listener
+    public void delPlayerFromList(ClientConnectionEvent.Disconnect event) {
+
+        slowMode.delPlayerFromList(event);
+    }
+
+    @Listener
+    public void registerCmd(GameAboutToStartServerEvent event) {
+        Sponge.getCommandManager().register(this, CmdSlowMode.cmdSlowMode, "slowmode");
+    }
+
 }

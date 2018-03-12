@@ -1,6 +1,8 @@
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageChannel;
 import org.spongepowered.api.text.channel.MessageReceiver;
+import org.spongepowered.api.text.format.TextColors;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -25,6 +27,31 @@ public class PlayerChat {
         this.epoch = 0;
         this.time = 0;
         this.originalChannel = player.getMessageChannel();
+    }
+
+    public void applySlowMode(int time, String reason) {
+        if (!reason.isEmpty()) {
+            Text msg = Text.builder("Chat timeout pour " + time + " secondes. Raison: " + reason)
+                    .color(TextColors.YELLOW).build();
+            this.player.sendMessage(msg);
+        }
+        this.epoch = System.currentTimeMillis();
+        this.time = time;
+        this.timedout = true;
+        this.player.setMessageChannel(timeOutChannel);
+    }
+
+    public boolean undoSlowMode() {
+        long epoch = System.currentTimeMillis();
+        System.out.println(epoch + " - " + this.epoch + " = " + (epoch - this.epoch) / 1000);
+        if ((epoch - this.epoch) / 1000 >= time) {
+            player.setMessageChannel(originalChannel);
+        } else {
+            return false;
+        }
+        timedout = false;
+        this.epoch = 0;
+        return true;
     }
 
     public Player getPlayer() {
