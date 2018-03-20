@@ -43,7 +43,6 @@ public class PlayerChat {
 
     public boolean undoSlowMode() {
         long epoch = System.currentTimeMillis();
-        System.out.println(epoch + " - " + this.epoch + " = " + (epoch - this.epoch) / 1000);
         if ((epoch - this.epoch) / 1000 >= time) {
             player.setMessageChannel(originalChannel);
         } else {

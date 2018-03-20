@@ -18,7 +18,7 @@ import java.util.Optional;
 public class CmdSlowMode implements CommandExecutor {
 
     public static CommandSpec cmdSlowMode = CommandSpec.builder()
-            .description(Text.of("Hello World Command"))
+            .description(Text.of("Slow mode command"))
             .permission("sm-perm")
             .arguments(GenericArguments.onlyOne(GenericArguments.integer(Text.of("time"))))
             .executor(new CmdSlowMode())
