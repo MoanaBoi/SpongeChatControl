@@ -8,9 +8,6 @@ import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.service.permission.SubjectData;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
-import org.spongepowered.api.service.permission.PermissionDescription;
-import org.spongepowered.api.service.permission.PermissionDescription.Builder;
-import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.util.Tristate;
 
 import java.util.Optional;
@@ -27,16 +24,18 @@ public class CheckBadWords {
     private static SpamControl spam = new SpamControl();
     private static CmdSlowMode slowMode = new CmdSlowMode();
 
-    public CheckBadWords() {
-    }
+    public CheckBadWords() { }
+
 
     private void setReportLink(MessageChannelEvent.Chat event) {
         Optional<Player> optionalPlayer = event.getCause().first(Player.class);
         String msg = event.getRawMessage().toPlainSingle();
 
         if (optionalPlayer.isPresent()) {
-            msg = "<" + optionalPlayer.get().getName() + "> " + msg;
-            Text clickableText = Text.builder(msg).onClick(TextActions.runCommand("/report " + optionalPlayer.get().getName())).build();
+            Player player = optionalPlayer.get();
+            String name = player.getName();
+            msg = "<" + name + "> " + msg;
+            Text clickableText = Text.builder(msg).onClick(TextActions.runCommand("/report " + name)).build();
             event.setMessage(clickableText);
         }
     }
@@ -54,9 +53,11 @@ public class CheckBadWords {
                 }
             }
         }
+        System.out.println("before: " + event.getRawMessage().toPlainSingle());
         spam.playerMessagePreventSpam(event);
         slowMode.checkSlowModeBeforeMessage(event);
         setReportLink(event);
+        System.out.println("after: " + event.getRawMessage().toPlainSingle());
     }
 
     @Listener
