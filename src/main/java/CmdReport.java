@@ -6,9 +6,7 @@ import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.command.spec.CommandSpec;
-import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.InventoryArchetypes;
@@ -32,7 +30,6 @@ public class CmdReport implements CommandExecutor {
         if (args.<String>getOne("playerName").isPresent()) {
             String playerReportedName = args.<String>getOne("playerName").get();
             System.out.println("reported player " + playerReportedName);
-
             ItemStack greenWool = ItemStack.builder()
                     .itemType(ItemTypes.WOOL)
                     .quantity(1)

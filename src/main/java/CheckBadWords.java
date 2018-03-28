@@ -27,10 +27,8 @@ public class CheckBadWords {
     public CheckBadWords() { }
 
 
-    private void setReportLink(MessageChannelEvent.Chat event) {
+    private void setReportLink(MessageChannelEvent.Chat event, String msg) {
         Optional<Player> optionalPlayer = event.getCause().first(Player.class);
-        String msg = event.getRawMessage().toPlainSingle();
-
         if (optionalPlayer.isPresent()) {
             Player player = optionalPlayer.get();
             String name = player.getName();
@@ -43,8 +41,8 @@ public class CheckBadWords {
     @Listener
     public void playerMessage(MessageChannelEvent.Chat event) {
         Optional<Player> optionalPlayer = event.getCause().first(Player.class);
+        String msg = event.getRawMessage().toPlainSingle();
         if (optionalPlayer.isPresent()) {
-            String msg = event.getRawMessage().toPlainSingle();
             for (String bad : badWords) {
                 if (msg.contains(bad)) {
                     msg = msg.replace(bad, "****");
@@ -53,11 +51,9 @@ public class CheckBadWords {
                 }
             }
         }
-        System.out.println("before: " + event.getRawMessage().toPlainSingle());
         spam.playerMessagePreventSpam(event);
         slowMode.checkSlowModeBeforeMessage(event);
-        setReportLink(event);
-        System.out.println("after: " + event.getRawMessage().toPlainSingle());
+        setReportLink(event, msg);
     }
 
     @Listener

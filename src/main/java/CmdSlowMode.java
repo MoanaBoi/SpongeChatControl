@@ -74,7 +74,8 @@ public class CmdSlowMode implements CommandExecutor {
                             player.applySlowMode(time, "");
                         }
                     } else {
-                        player.applySlowMode(time, "");
+                        if (time > 0)
+                            player.applySlowMode(time, "");
                     }
                 }
             }
