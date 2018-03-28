@@ -1,9 +1,17 @@
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameAboutToStartServerEvent;
+import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
+import org.spongepowered.api.event.item.inventory.ClickInventoryEvent;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
+import org.spongepowered.api.item.ItemType;
+import org.spongepowered.api.item.ItemTypes;
+import org.spongepowered.api.item.inventory.Inventory;
+import org.spongepowered.api.item.inventory.crafting.CraftingOutput;
+import org.spongepowered.api.item.inventory.transaction.SlotTransaction;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.service.permission.SubjectData;
 import org.spongepowered.api.text.Text;
@@ -74,4 +82,19 @@ public class CheckBadWords {
         Sponge.getCommandManager().register(this, CmdReport.cmdReport, "report");
     }
 
+    @Listener
+    public void reportReason(ClickInventoryEvent event) {
+        Optional<Player> optionalPlayer = event.getCause().first(Player.class);
+        if (optionalPlayer.isPresent()) {
+            Player player = optionalPlayer.get();
+            for (SlotTransaction slot : event.getTransactions()) {
+                if (slot.getOriginal().getType().equals(ItemTypes.WOOL)) {
+                    String reason = slot.getOriginal().get(Keys.DISPLAY_NAME).get().toPlainSingle();
+                    if (!reason.equals("le nom de base")) {
+                        for (String reportByPlayer : CmdReport.reportList.get(playerReportedName))
+                    }
+                }
+            }
+        }
+    }
 }

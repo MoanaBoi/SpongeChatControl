@@ -13,7 +13,14 @@ import org.spongepowered.api.item.inventory.InventoryArchetypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Text;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class CmdReport implements CommandExecutor {
+
+    public static Map<String, List<String>> reportList = new HashMap<>();
 
     public CmdReport() {}
 
@@ -30,15 +37,32 @@ public class CmdReport implements CommandExecutor {
         if (args.<String>getOne("playerName").isPresent()) {
             String playerReportedName = args.<String>getOne("playerName").get();
             System.out.println("reported player " + playerReportedName);
-            ItemStack greenWool = ItemStack.builder()
+            ItemStack wool = ItemStack.builder()
                     .itemType(ItemTypes.WOOL)
                     .quantity(1)
                     .build();
             Inventory report = Inventory.builder()
                     .of(InventoryArchetypes.ANVIL)
                     .build(Sponge.getPluginManager().getPlugin("spongechatcontrol").get().getInstance().get());
+            report.set(wool);
             player.openInventory(report);
-            report.set(greenWool);
+            if (!reportList.containsKey(playerReportedName)) {
+                List<String> noReason = new ArrayList<>();
+                noReason.add(player.getName() + "-");
+                reportList.put(playerReportedName, noReason);
+            } else {
+                boolean found = false;
+                for (String reportByPlayer : reportList.get(playerReportedName)) {
+                    String[] parts = reportByPlayer.split("-");
+                    if (parts[0].equals(player.getName())) {
+                        found = true;
+                        reportByPlayer = reportByPlayer + "-";
+                    }
+                }
+                if (!found) {
+                    reportList.get(playerReportedName).add(player.getName() + "-");
+                }
+            }
         }
         return CommandResult.success();
     }
