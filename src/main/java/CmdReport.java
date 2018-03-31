@@ -21,6 +21,7 @@ import java.util.Map;
 public class CmdReport implements CommandExecutor {
 
     public static Map<String, List<String>> reportList = new HashMap<>();
+    public static Map<String, String> reporting = new HashMap<>();
 
     public CmdReport() {}
 
@@ -45,22 +46,27 @@ public class CmdReport implements CommandExecutor {
                     .of(InventoryArchetypes.ANVIL)
                     .build(Sponge.getPluginManager().getPlugin("spongechatcontrol").get().getInstance().get());
             report.set(wool);
+            reporting.put(player.getName(), playerReportedName);
             player.openInventory(report);
             if (!reportList.containsKey(playerReportedName)) {
                 List<String> noReason = new ArrayList<>();
                 noReason.add(player.getName() + "-");
                 reportList.put(playerReportedName, noReason);
+                System.out.println("creating entry for player");
             } else {
                 boolean found = false;
-                for (String reportByPlayer : reportList.get(playerReportedName)) {
-                    String[] parts = reportByPlayer.split("-");
+                for (int i = 0; i < reportList.get(playerReportedName).size(); i++) {
+                    String[] parts = reportList.get(playerReportedName).get(i).split("-");
                     if (parts[0].equals(player.getName())) {
                         found = true;
-                        reportByPlayer = reportByPlayer + "-";
+                        if (!(reportList.get(playerReportedName).get(i).charAt(reportList.get(playerReportedName).get(i).length() - 1) == '-'))
+                            reportList.get(playerReportedName).set(i, reportList.get(playerReportedName).get(i) + "-");
+                        System.out.println("adding - to player report list: " + reportList.get(playerReportedName).get(i));
                     }
                 }
                 if (!found) {
                     reportList.get(playerReportedName).add(player.getName() + "-");
+                    System.out.println("adding new player entry to reported player");
                 }
             }
         }

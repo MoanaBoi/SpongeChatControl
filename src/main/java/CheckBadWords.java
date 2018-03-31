@@ -1,16 +1,16 @@
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.type.HandType;
+import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameAboutToStartServerEvent;
-import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
 import org.spongepowered.api.event.item.inventory.ClickInventoryEvent;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
-import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
-import org.spongepowered.api.item.inventory.Inventory;
-import org.spongepowered.api.item.inventory.crafting.CraftingOutput;
+import org.spongepowered.api.item.inventory.InventoryArchetype;
+import org.spongepowered.api.item.inventory.InventoryArchetypes;
 import org.spongepowered.api.item.inventory.transaction.SlotTransaction;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.service.permission.SubjectData;
@@ -80,6 +80,7 @@ public class CheckBadWords {
     public void registerCmd(GameAboutToStartServerEvent event) {
         Sponge.getCommandManager().register(this, CmdSlowMode.cmdSlowMode, "slowmode");
         Sponge.getCommandManager().register(this, CmdReport.cmdReport, "report");
+        Sponge.getCommandManager().register(this, CmdReportList.cmdReportList, "reportlist");
     }
 
     @Listener
@@ -87,11 +88,28 @@ public class CheckBadWords {
         Optional<Player> optionalPlayer = event.getCause().first(Player.class);
         if (optionalPlayer.isPresent()) {
             Player player = optionalPlayer.get();
+            if (!event.getTargetInventory().getArchetype().equals(InventoryArchetypes.ANVIL)) {
+                return ;
+            }
             for (SlotTransaction slot : event.getTransactions()) {
                 if (slot.getOriginal().getType().equals(ItemTypes.WOOL)) {
-                    String reason = slot.getOriginal().get(Keys.DISPLAY_NAME).get().toPlainSingle();
-                    if (!reason.equals("le nom de base")) {
-                        for (String reportByPlayer : CmdReport.reportList.get(playerReportedName))
+                    Optional<Text> text = slot.getOriginal().get(Keys.DISPLAY_NAME);
+                    if (text.isPresent()) {
+                        String reason = text.get().toPlainSingle();
+                        if (!reason.equals("White Wool")) {
+                            if (!CmdReport.reporting.containsKey(player.getName())) {
+                                return ;
+                            }
+                            String playerReportedName = CmdReport.reporting.get(player.getName());
+                            for (int i = 0; i < CmdReport.reportList.get(playerReportedName).size(); i++) {
+                                String[] reasons =  CmdReport.reportList.get(playerReportedName).get(i).split("-");
+                                if (reasons[0].equals(player.getName())) {
+                                    CmdReport.reportList.get(playerReportedName).set(i, CmdReport.reportList.get(playerReportedName).get(i) + reason);
+                                    System.out.println(CmdReport.reportList.get(playerReportedName).get(i) + " " + playerReportedName);
+                                    CmdReport.reporting.remove(player.getName());
+                                }
+                            }
+                        }
                     }
                 }
             }
